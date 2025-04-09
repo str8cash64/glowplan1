@@ -38,4 +38,4 @@ Coming soon!
 
 ## License
 
-© 2025 GlowPlan. All rights reserved. 
+© 2025 GlowPlan. All rights reserved.
