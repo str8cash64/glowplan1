@@ -1,0 +1,57 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+You are assisting in building the GlowPlan iOS app in SwiftUI.  
+GlowPlan is a beauty, skincare, and wellness app designed with a soft pink aesthetic and elegant user experience.
+
+📚 App Structure:
+- SplashScreen.swift: shows app logo, loads startup
+- WelcomeView.swift: user taps \"Start My Glow\"
+- QuizView.swift: onboarding skincare quiz BEFORE sign up
+- RoutineSummaryView.swift: shows user's personalized morning and evening routine
+- AuthView.swift: signup/login screen AFTER quiz if user wants to save routine
+- HomeView.swift: dashboard after signup
+- RoutinesView.swift: manage saved routines
+- RecommendedView.swift: product recommendations
+- GlowChatView.swift: chat with GPT AI assistant, personalized with quiz results
+- AccountView.swift: user settings, quiz results, logout
+
+🛠 Core Features:
+- Firebase Authentication (email/password)
+- Firestore Database (users, quiz results, routines)
+- OpenAI Chat integration (using user's skincare profile)
+
+🎨 Design System:
+- Light pastel pink background (#FFF2F2)
+- White rounded cards with soft shadows for buttons
+- Black text for titles
+- Coral pink accent color for important buttons/icons
+- Large title at top of each screen
+- Soft transitions, smooth animations where needed
+
+🚀 New User Onboarding Flow:
+1. User opens the app → sees SplashScreen
+2. Sees WelcomeView → taps \"Start My Glow\"
+3. Completes QuizView (basic questions: Name, Skin Type, Goals, Sensitivity)
+4. After quiz submission → sees RoutineSummaryView (preview of personalized routines)
+5. App prompts: \"Save your personalized Glow Routine!\" (with a button)
+6. If user accepts → AuthView (Sign up/Login)
+7. After signup success → Save quiz + routine to Firestore
+8. Navigate user to HomeView (main dashboard)
+
+🛡 Rules:
+- Never break quiz flow before signup
+- Only show signup AFTER quiz and routine summary
+- Save all user data to Firestore cleanly after signup
+- When updating UI, match the GlowPlan brand feeling
+- Maintain clean MVVM separation where needed
+- Prioritize simplicity and emotional connection with user
+
+🔮 Future expansion:
+- Push notifications
+- User subscriptions (GlowPlan Premium)
+- AI-generated skincare routines based on quiz results
+
+🌸 GlowPlan brand feeling: Calm, Positive, Inspiring, Luxurious.
