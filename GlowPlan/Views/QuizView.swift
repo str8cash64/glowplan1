@@ -170,12 +170,15 @@ struct QuizView: View {
             }
             .navigationDestination(isPresented: $showSaveRoutine) {
                 if let routine = routine {
-                    SaveRoutineView(quizResult: QuizResult(
-                        name: name,
-                        skinType: skinType,
-                        skinGoals: skinGoals,
-                        sensitivity: sensitivityLevel
-                    ), routine: routine)
+                    RoutinePreviewView(
+                        quizResult: QuizResult(
+                            name: name,
+                            skinType: skinType,
+                            skinGoals: skinGoals,
+                            sensitivity: sensitivityLevel
+                        ),
+                        routine: routine
+                    )
                     .environmentObject(appState)
                 }
             }

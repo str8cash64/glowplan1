@@ -1,8 +1,24 @@
 import Foundation
 
+struct RoutineStep: Codable, Identifiable {
+    let id: String
+    let title: String
+    let description: String
+    let duration: String?
+    let tip: String?
+    
+    init(id: String = UUID().uuidString, title: String, description: String, duration: String? = nil, tip: String? = nil) {
+        self.id = id
+        self.title = title
+        self.description = description
+        self.duration = duration
+        self.tip = tip
+    }
+}
+
 struct Routine: Codable {
-    var morningRoutine: [String]
-    var eveningRoutine: [String]
+    var morningRoutine: [RoutineStep]
+    var eveningRoutine: [RoutineStep]
     var timestamp: Date
     
     enum CodingKeys: String, CodingKey {
@@ -11,7 +27,7 @@ struct Routine: Codable {
         case timestamp
     }
     
-    init(morningRoutine: [String], eveningRoutine: [String]) {
+    init(morningRoutine: [RoutineStep], eveningRoutine: [RoutineStep]) {
         self.morningRoutine = morningRoutine
         self.eveningRoutine = eveningRoutine
         self.timestamp = Date()
@@ -19,8 +35,8 @@ struct Routine: Codable {
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        morningRoutine = try container.decode([String].self, forKey: .morningRoutine)
-        eveningRoutine = try container.decode([String].self, forKey: .eveningRoutine)
+        morningRoutine = try container.decode([RoutineStep].self, forKey: .morningRoutine)
+        eveningRoutine = try container.decode([RoutineStep].self, forKey: .eveningRoutine)
         timestamp = Date() // Set current date when decoding from JSON
     }
 }

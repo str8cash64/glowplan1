@@ -21,12 +21,28 @@ class RoutineGenerator {
 
         Return ONLY a JSON object in this exact format:
         {
-            "morningRoutine": ["step 1", "step 2", "step 3"],
-            "eveningRoutine": ["step 1", "step 2", "step 3"]
+            "morningRoutine": [
+                {
+                    "title": "Step title (e.g., 'Cleanse with Gentle Cleanser')",
+                    "description": "1-2 line description of what to do",
+                    "duration": "Estimated time (e.g., '1 min')",
+                    "tip": "Optional helpful tip"
+                }
+            ],
+            "eveningRoutine": [
+                {
+                    "title": "Step title",
+                    "description": "Step description",
+                    "duration": "Estimated time",
+                    "tip": "Optional tip"
+                }
+            ]
         }
         
         Include 3-5 steps for each routine. Focus on providing a safe, effective routine suitable for the user's skin type and concerns.
+        Each step should be specific and actionable.
         The response must be valid JSON and nothing else.
+        Consider sensitivity level when recommending active ingredients.
         """
         
         let url = URL(string: "https://api.openai.com/v1/chat/completions")!
@@ -42,11 +58,11 @@ class RoutineGenerator {
         let requestBody: [String: Any] = [
             "model": "gpt-4-1106-preview",
             "messages": [
-                ["role": "system", "content": "You are a skincare expert AI that generates personalized routines. Always return valid JSON in the exact format requested."],
+                ["role": "system", "content": "You are a skincare expert AI that generates personalized routines. Always return valid JSON in the exact format requested. Focus on safety and effectiveness."],
                 ["role": "user", "content": prompt]
             ],
-            "temperature": 0.7,
-            "max_tokens": 500,
+            "temperature": 0.2,
+            "max_tokens": 1000,
             "response_format": ["type": "json_object"]
         ]
         
@@ -86,8 +102,24 @@ class RoutineGenerator {
         }
         
         let routineData: [String: Any] = [
-            "morningRoutine": routine.morningRoutine,
-            "eveningRoutine": routine.eveningRoutine,
+            "morningRoutine": routine.morningRoutine.map { step in
+                [
+                    "id": step.id,
+                    "title": step.title,
+                    "description": step.description,
+                    "duration": step.duration as Any,
+                    "tip": step.tip as Any
+                ]
+            },
+            "eveningRoutine": routine.eveningRoutine.map { step in
+                [
+                    "id": step.id,
+                    "title": step.title,
+                    "description": step.description,
+                    "duration": step.duration as Any,
+                    "tip": step.tip as Any
+                ]
+            },
             "timestamp": Timestamp(date: routine.timestamp),
             "isActive": true
         ]
