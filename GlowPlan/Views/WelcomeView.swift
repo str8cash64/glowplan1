@@ -2,6 +2,7 @@ import SwiftUI
 
 struct WelcomeView: View {
     @State private var showQuiz = false
+    @EnvironmentObject private var appState: AppState
     
     var body: some View {
         NavigationStack {
@@ -34,6 +35,7 @@ struct WelcomeView: View {
             }
             .navigationDestination(isPresented: $showQuiz) {
                 QuizView()
+                    .environmentObject(appState)
             }
         }
     }

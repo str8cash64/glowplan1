@@ -4,6 +4,7 @@ import FirebaseFirestore
 
 struct AuthView: View {
     let quizResult: QuizResult?
+    let routine: Routine?
     @State private var email = ""
     @State private var password = ""
     @State private var isSignUp = true
@@ -121,6 +122,18 @@ struct AuthView: View {
                         errorMessage = "Failed to save user data: \(error.localizedDescription)"
                         return
                     }
+                    
+                    // Save routine if available
+                    if let routine = routine {
+                        Task {
+                            do {
+                                try await RoutineGenerator.shared.saveRoutineToFirestore(routine: routine)
+                            } catch {
+                                print("Error saving routine: \(error.localizedDescription)")
+                            }
+                        }
+                    }
+                    
                     appState.isLoggedIn = true
                     navigateToHome = true
                 }

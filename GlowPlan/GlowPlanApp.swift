@@ -26,6 +26,7 @@ struct GlowPlanApp: App {
     var body: some Scene {
         WindowGroup {
             SplashScreen()
+                .environmentObject(appState)
         }
     }
 }

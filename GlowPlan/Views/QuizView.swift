@@ -11,6 +11,7 @@ struct QuizView: View {
     @State private var errorMessage: String?
     @State private var showError = false
     @State private var routine: Routine?
+    @EnvironmentObject private var appState: AppState
     
     let skinTypes = ["Dry", "Oily", "Combination", "Normal", "Sensitive"]
     let skinGoalOptions = ["Hydration", "Anti-Aging", "Acne Control", "Brightening", "Even Tone", "Pore Reduction"]
@@ -168,15 +169,15 @@ struct QuizView: View {
                 }
             }
             .navigationDestination(isPresented: $showSaveRoutine) {
-                SaveRoutineView(
-                    quizResult: QuizResult(
+                if let routine = routine {
+                    SaveRoutineView(quizResult: QuizResult(
                         name: name,
                         skinType: skinType,
                         skinGoals: skinGoals,
                         sensitivity: sensitivityLevel
-                    ),
-                    routine: routine
-                )
+                    ), routine: routine)
+                    .environmentObject(appState)
+                }
             }
             .alert("Error", isPresented: $showError) {
                 Button("OK") {

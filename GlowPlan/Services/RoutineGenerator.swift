@@ -35,13 +35,18 @@ class RoutineGenerator {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(Secrets.openAIAPIKey)", forHTTPHeaderField: "Authorization")
         
+        guard Secrets.validateAPIKey() else {
+            throw NSError(domain: "RoutineGenerator", code: 401, userInfo: [NSLocalizedDescriptionKey: "Invalid or missing API key"])
+        }
+        
         let requestBody: [String: Any] = [
-            "model": "gpt-4-turbo-preview",
+            "model": "gpt-4-1106-preview",
             "messages": [
                 ["role": "system", "content": "You are a skincare expert AI that generates personalized routines. Always return valid JSON in the exact format requested."],
                 ["role": "user", "content": prompt]
             ],
-            "temperature": 0.2,
+            "temperature": 0.7,
+            "max_tokens": 500,
             "response_format": ["type": "json_object"]
         ]
         
