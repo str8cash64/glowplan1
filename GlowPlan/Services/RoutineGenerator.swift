@@ -12,6 +12,16 @@ class RoutineGenerator {
         skinGoals: [String],
         sensitivityLevel: String
     ) async throws -> Routine {
+        // Validate input parameters
+        guard !name.isEmpty, !skinType.isEmpty, !skinGoals.isEmpty, !sensitivityLevel.isEmpty else {
+            throw RoutineError.invalidResponse
+        }
+        
+        // Validate API key first
+        guard Secrets.validateAPIKey() else {
+            throw RoutineError.invalidAPIKey
+        }
+        
         let prompt = """
         Generate a personalized skincare routine based on this profile:
         Name: \(name)
@@ -51,10 +61,6 @@ class RoutineGenerator {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(Secrets.openAIAPIKey)", forHTTPHeaderField: "Authorization")
         
-        guard Secrets.validateAPIKey() else {
-            throw NSError(domain: "RoutineGenerator", code: 401, userInfo: [NSLocalizedDescriptionKey: "Invalid or missing API key"])
-        }
-        
         let requestBody: [String: Any] = [
             "model": "gpt-4-1106-preview",
             "messages": [
@@ -66,16 +72,37 @@ class RoutineGenerator {
             "response_format": ["type": "json_object"]
         ]
         
-        request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+        } catch {
+            throw RoutineError.decodingError("Failed to create request")
+        }
         
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response): (Data, URLResponse)
+        do {
+            (data, response) = try await URLSession.shared.data(for: request)
+        } catch {
+            throw RoutineError.networkError
+        }
         
-        guard let httpResponse = response as? HTTPURLResponse,
-              (200...299).contains(httpResponse.statusCode) else {
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw RoutineError.networkError
+        }
+        
+        guard (200...299).contains(httpResponse.statusCode) else {
+            if httpResponse.statusCode == 401 {
+                throw RoutineError.invalidAPIKey
+            }
             throw RoutineError.apiError
         }
         
-        let openAIResponse = try JSONDecoder().decode(OpenAIResponse.self, from: data)
+        let openAIResponse: OpenAIResponse
+        do {
+            openAIResponse = try JSONDecoder().decode(OpenAIResponse.self, from: data)
+        } catch {
+            throw RoutineError.decodingError("Failed to decode API response")
+        }
+        
         guard let routineJSON = openAIResponse.choices.first?.message.content else {
             throw RoutineError.invalidResponse
         }
@@ -86,13 +113,20 @@ class RoutineGenerator {
             
             // Validate routine has required steps
             guard !routine.morningRoutine.isEmpty && !routine.eveningRoutine.isEmpty else {
-                throw RoutineError.invalidResponse
+                throw RoutineError.decodingError("Generated routine is missing required steps")
+            }
+            
+            // Validate each step has required fields
+            for step in routine.morningRoutine + routine.eveningRoutine {
+                guard !step.title.isEmpty && !step.description.isEmpty else {
+                    throw RoutineError.decodingError("Generated routine steps are missing required fields")
+                }
             }
             
             return routine
-        } catch {
-            print("JSON Decoding Error: \(error)")
-            throw RoutineError.invalidResponse
+        } catch let decodingError {
+            print("JSON Decoding Error: \(decodingError)")
+            throw RoutineError.decodingError("Failed to create routine from API response")
         }
     }
     
@@ -136,6 +170,9 @@ enum RoutineError: Error {
     case apiError
     case invalidResponse
     case userNotFound
+    case invalidAPIKey
+    case networkError
+    case decodingError(String)
     
     var localizedDescription: String {
         switch self {
@@ -145,6 +182,12 @@ enum RoutineError: Error {
             return "Unable to generate a routine. Please try again."
         case .userNotFound:
             return "User not found. Please log in again."
+        case .invalidAPIKey:
+            return "Configuration error: Invalid API key"
+        case .networkError:
+            return "Network error: Please check your connection and try again"
+        case .decodingError(let message):
+            return "Error creating your routine: \(message)"
         }
     }
 } 

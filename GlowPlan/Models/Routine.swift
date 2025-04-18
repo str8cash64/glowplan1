@@ -7,12 +7,26 @@ struct RoutineStep: Codable, Identifiable {
     let duration: String?
     let tip: String?
     
+    enum CodingKeys: String, CodingKey {
+        case id, title, description, duration, tip
+    }
+    
     init(id: String = UUID().uuidString, title: String, description: String, duration: String? = nil, tip: String? = nil) {
         self.id = id
         self.title = title
         self.description = description
         self.duration = duration
         self.tip = tip
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        // Generate UUID if id is missing in JSON
+        id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
+        title = try container.decode(String.self, forKey: .title)
+        description = try container.decode(String.self, forKey: .description)
+        duration = try container.decodeIfPresent(String.self, forKey: .duration)
+        tip = try container.decodeIfPresent(String.self, forKey: .tip)
     }
 }
 
@@ -52,4 +66,4 @@ struct OpenAIResponse: Codable {
     }
     
     var choices: [Choice]
-} 
+}

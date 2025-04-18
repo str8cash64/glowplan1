@@ -6,7 +6,7 @@ struct QuizView: View {
     @State private var skinType = ""
     @State private var skinGoals: [String] = []
     @State private var sensitivityLevel = ""
-    @State private var showSaveRoutine = false
+    @State private var showRoutinePreview = false
     @State private var isGeneratingRoutine = false
     @State private var errorMessage: String?
     @State private var showError = false
@@ -24,109 +24,119 @@ struct QuizView: View {
                     .ignoresSafeArea()
                 
                 VStack(spacing: 20) {
-                    // Progress bar
+                    // Progress bar with fixed frame
                     ProgressView(value: Double(currentStep), total: 4)
                         .tint(.glowCoral)
                         .padding(.horizontal)
+                        .frame(height: 2)
                     
                     ScrollView {
                         VStack(spacing: 25) {
-                            switch currentStep {
-                            case 0:
-                                QuizStepView(title: "What's your name?") {
-                                    VStack(spacing: 10) {
-                                        TextField("Enter your name", text: $name)
-                                            .padding()
-                                            .background(Color.white)
-                                            .cornerRadius(10)
-                                            .foregroundColor(.black)
-                                            .font(.body)
-                                    }
-                                    .padding(.horizontal)
-                                }
-                                
-                            case 1:
-                                QuizStepView(title: "What's your skin type?") {
-                                    VStack(spacing: 10) {
-                                        ForEach(skinTypes, id: \.self) { type in
-                                            Button {
-                                                skinType = type
-                                            } label: {
-                                                HStack {
-                                                    Text(type)
-                                                        .foregroundColor(skinType == type ? .white : .black)
-                                                    Spacer()
-                                                    if skinType == type {
-                                                        Image(systemName: "checkmark")
-                                                            .foregroundColor(.white)
-                                                    }
-                                                }
+                            // Quiz steps
+                            Group {
+                                switch currentStep {
+                                case 0:
+                                    QuizStepView(title: "What's your name?") {
+                                        VStack(spacing: 10) {
+                                            TextField("Enter your name", text: $name)
                                                 .padding()
-                                                .background(skinType == type ? Color.glowCoral : Color.white)
+                                                .background(Color.white)
                                                 .cornerRadius(10)
+                                                .foregroundColor(.black)
+                                                .font(.body)
+                                                .frame(maxWidth: .infinity)
+                                        }
+                                        .padding(.horizontal)
+                                    }
+                                    
+                                case 1:
+                                    QuizStepView(title: "What's your skin type?") {
+                                        VStack(spacing: 10) {
+                                            ForEach(skinTypes, id: \.self) { type in
+                                                Button {
+                                                    skinType = type
+                                                } label: {
+                                                    HStack {
+                                                        Text(type)
+                                                            .foregroundColor(skinType == type ? .white : .black)
+                                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                                        if skinType == type {
+                                                            Image(systemName: "checkmark")
+                                                                .foregroundColor(.white)
+                                                        }
+                                                    }
+                                                    .padding()
+                                                    .frame(maxWidth: .infinity)
+                                                    .background(skinType == type ? Color.glowCoral : Color.white)
+                                                    .cornerRadius(10)
+                                                }
                                             }
                                         }
+                                        .padding(.horizontal)
                                     }
-                                    .padding(.horizontal)
-                                }
-                                
-                            case 2:
-                                QuizStepView(title: "What are your skin goals?") {
-                                    VStack(spacing: 10) {
-                                        ForEach(skinGoalOptions, id: \.self) { goal in
-                                            Button {
-                                                if skinGoals.contains(goal) {
-                                                    skinGoals.removeAll { $0 == goal }
-                                                } else {
-                                                    skinGoals.append(goal)
-                                                }
-                                            } label: {
-                                                HStack {
-                                                    Text(goal)
-                                                        .foregroundColor(skinGoals.contains(goal) ? .white : .black)
-                                                    Spacer()
+                                    
+                                case 2:
+                                    QuizStepView(title: "What are your skin goals?") {
+                                        VStack(spacing: 10) {
+                                            ForEach(skinGoalOptions, id: \.self) { goal in
+                                                Button {
                                                     if skinGoals.contains(goal) {
-                                                        Image(systemName: "checkmark")
-                                                            .foregroundColor(.white)
+                                                        skinGoals.removeAll { $0 == goal }
+                                                    } else {
+                                                        skinGoals.append(goal)
                                                     }
+                                                } label: {
+                                                    HStack {
+                                                        Text(goal)
+                                                            .foregroundColor(skinGoals.contains(goal) ? .white : .black)
+                                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                                        if skinGoals.contains(goal) {
+                                                            Image(systemName: "checkmark")
+                                                                .foregroundColor(.white)
+                                                        }
+                                                    }
+                                                    .padding()
+                                                    .frame(maxWidth: .infinity)
+                                                    .background(skinGoals.contains(goal) ? Color.glowCoral : Color.white)
+                                                    .cornerRadius(10)
                                                 }
-                                                .padding()
-                                                .background(skinGoals.contains(goal) ? Color.glowCoral : Color.white)
-                                                .cornerRadius(10)
                                             }
                                         }
+                                        .padding(.horizontal)
                                     }
-                                    .padding(.horizontal)
-                                }
-                                
-                            case 3:
-                                QuizStepView(title: "How sensitive is your skin?") {
-                                    VStack(spacing: 10) {
-                                        ForEach(sensitivityLevels, id: \.self) { level in
-                                            Button {
-                                                sensitivityLevel = level
-                                            } label: {
-                                                HStack {
-                                                    Text(level)
-                                                        .foregroundColor(sensitivityLevel == level ? .white : .black)
-                                                    Spacer()
-                                                    if sensitivityLevel == level {
-                                                        Image(systemName: "checkmark")
-                                                            .foregroundColor(.white)
+                                    
+                                case 3:
+                                    QuizStepView(title: "How sensitive is your skin?") {
+                                        VStack(spacing: 10) {
+                                            ForEach(sensitivityLevels, id: \.self) { level in
+                                                Button {
+                                                    sensitivityLevel = level
+                                                } label: {
+                                                    HStack {
+                                                        Text(level)
+                                                            .foregroundColor(sensitivityLevel == level ? .white : .black)
+                                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                                        if sensitivityLevel == level {
+                                                            Image(systemName: "checkmark")
+                                                                .foregroundColor(.white)
+                                                        }
                                                     }
+                                                    .padding()
+                                                    .frame(maxWidth: .infinity)
+                                                    .background(sensitivityLevel == level ? Color.glowCoral : Color.white)
+                                                    .cornerRadius(10)
                                                 }
-                                                .padding()
-                                                .background(sensitivityLevel == level ? Color.glowCoral : Color.white)
-                                                .cornerRadius(10)
                                             }
                                         }
+                                        .padding(.horizontal)
                                     }
-                                    .padding(.horizontal)
+                                default:
+                                    EmptyView()
                                 }
-                            default:
-                                EmptyView()
                             }
+                            .animation(.easeInOut, value: currentStep)
                             
+                            // Next/Finish button
                             Button {
                                 if canProceed {
                                     if currentStep < 3 {
@@ -153,22 +163,24 @@ struct QuizView: View {
                     }
                 }
                 
+                // Loading overlay
                 if isGeneratingRoutine {
                     Color.black.opacity(0.4)
                         .ignoresSafeArea()
-                    
-                    VStack(spacing: 20) {
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                            .scaleEffect(1.5)
-                        
-                        Text("Creating your personalized routine...")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                    }
+                        .overlay(
+                            VStack(spacing: 20) {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                    .scaleEffect(1.5)
+                                
+                                Text("Creating your personalized routine...")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                            }
+                        )
                 }
             }
-            .navigationDestination(isPresented: $showSaveRoutine) {
+            .navigationDestination(isPresented: $showRoutinePreview) {
                 if let routine = routine {
                     RoutinePreviewView(
                         quizResult: QuizResult(
@@ -179,7 +191,6 @@ struct QuizView: View {
                         ),
                         routine: routine
                     )
-                    .environmentObject(appState)
                 }
             }
             .alert("Error", isPresented: $showError) {
@@ -209,6 +220,8 @@ struct QuizView: View {
     
     private func generateRoutine() {
         isGeneratingRoutine = true
+        errorMessage = nil
+        showError = false
         
         Task {
             do {
@@ -221,12 +234,23 @@ struct QuizView: View {
                 
                 await MainActor.run {
                     isGeneratingRoutine = false
-                    showSaveRoutine = true
+                    if routine != nil {
+                        showRoutinePreview = true
+                    } else {
+                        errorMessage = "Failed to generate routine. Please try again."
+                        showError = true
+                    }
+                }
+            } catch let error as RoutineError {
+                await MainActor.run {
+                    isGeneratingRoutine = false
+                    errorMessage = error.localizedDescription
+                    showError = true
                 }
             } catch {
                 await MainActor.run {
                     isGeneratingRoutine = false
-                    errorMessage = error.localizedDescription
+                    errorMessage = "An unexpected error occurred. Please try again."
                     showError = true
                 }
             }
